@@ -17,12 +17,43 @@ const toggleActive = (tabIndex) => {
 
 // Применение маски для ввода даты
 const applyMask = (event) => {
-  let value = event.target.value.replace(/\D/g, "");
-  if (value.length > 2) value = value.slice(0, 2) + "." + value.slice(2);
-  if (value.length > 5) value = value.slice(0, 5) + "." + value.slice(5);
+  let value = event.target.value.replace(/\D/g, ""); // Убираем всё, кроме цифр
+
+  // Разделение на день, месяц и год
+  let day = value.slice(0, 2);
+  let month = value.slice(2, 4);
+  let year = value.slice(4, 8);
+
+  // Ограничиваем день до 31
+  if (day > 31) {
+    day = "31";
+  }
+
+  // Ограничиваем месяц до 12
+  if (month > 12) {
+    month = "12";
+  }
+
+  // Ограничиваем год до текущего
+  const currentYear = new Date().getFullYear();
+  if (year > currentYear) {
+    year = currentYear.toString();
+  }
+
+  // Собираем дату обратно с разделителями
+  value = day;
+  if (month) {
+    value += "." + month;
+  }
+  if (year) {
+    value += "." + year;
+  }
+
+  // Ограничиваем длину до 10 символов
   value = value.slice(0, 10);
   inputValue.value = value;
 };
+
 
 // Вычисление возраста
 const calcDOB = (date) => {
@@ -35,10 +66,18 @@ const calcDOB = (date) => {
     return;
   }
 
+  if (userDate > today) {
+    age.value = "You haven't been born yet :)";
+    toggleActive(1);
+    return;
+  }
+
   let calculatedAge = today.getFullYear() - userDate.getFullYear();
 
   const hasBirthdayPassed = today.getMonth() > userDate.getMonth() ||
       (today.getMonth() === userDate.getMonth() && today.getDate() >= userDate.getDate());
+
+
 
   if (!hasBirthdayPassed) {
     calculatedAge--;
